@@ -72,7 +72,7 @@ pipeline {
             steps {
                 dir('Tetris-V2') {
                     sh 'docker system prune -f'
-                    sh 'docker build -t tetrisv1 .'
+                    sh 'docker build -t tetrisv2 .'
                 }
             }
         }
@@ -86,8 +86,8 @@ pipeline {
                 )]) {
                     sh '''
                         echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                        docker tag tetrisv1 nattasak19000/tetrisv1:${BUILD_NUMBER}
-                        docker push nattasak19000/tetrisv1:${BUILD_NUMBER}
+                        docker tag tetrisv2 nattasak19000/tetrisv2:${BUILD_NUMBER}
+                        docker push nattasak19000/tetrisv2:${BUILD_NUMBER}
                     '''
                 }
             }
@@ -95,7 +95,7 @@ pipeline {
 
         stage("TRIVY Image Scan") {
             steps {
-                sh 'trivy image nattasak19000/tetrisv1:${BUILD_NUMBER} > trivyimage.txt'
+                sh 'trivy image nattasak19000/tetrisv2:${BUILD_NUMBER} > trivyimage.txt'
             }
         }
 
@@ -117,8 +117,8 @@ pipeline {
                             git config user.email "nattasak.cho@dome.tu.ac.th"
                             git config user.name "Nattasak-Chonmanat"
 
-                            imageTag=$(grep -oP '(?<=tetrisv1:)[^ ]+' deployment-service.yml)
-                            sed -i "s/tetrisv1:${imageTag}/tetrisv1:${BUILD_NUMBER}/" deployment-service.yml
+                            imageTag=$(grep -oP '(?<=tetrisv2:)[^ ]+' deployment-service.yml)
+                            sed -i "s/tetrisv2:${imageTag}/tetrisv2:${BUILD_NUMBER}/" deployment-service.yml
 
                             git add deployment-service.yml
                             git commit -m "Update deployment Image to version ${BUILD_NUMBER}"
